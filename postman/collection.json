@@ -1,0 +1,1672 @@
+﻿{
+    "info":  {
+                 "_postman_id":  "fb2a1c3d-4e5f-6789-abcd-ef0123456789",
+                 "name":  "Finance Backend API",
+                 "description":  "Complete collection covering Auth, Financial Records, Dashboard, and User Management.\n\n**Quick start:**\n1. Run `POST /api/auth/login` with seeded credentials.\n2. Copy the returned `token` value.\n3. In Collection â†’ Edit â†’ Variables, paste it into the `adminToken` current value.\n4. All other requests will automatically send `Authorization: Bearer \u003ctoken\u003e`.",
+                 "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+             },
+    "variable":  [
+                     {
+                         "key":  "baseUrl",
+                         "value":  "http://localhost:8080",
+                         "type":  "string"
+                     },
+                     {
+                         "key":  "adminToken",
+                         "value":  "",
+                         "type":  "string"
+                     },
+                     {
+                         "key":  "analystToken",
+                         "value":  "",
+                         "type":  "string"
+                     },
+                     {
+                         "key":  "recordId",
+                         "value":  "",
+                         "type":  "string"
+                     },
+                     {
+                         "key":  "userId",
+                         "value":  "",
+                         "type":  "string"
+                     },
+                     {
+                         "key":  "permissionId",
+                         "value":  "",
+                         "type":  "string"
+                     },
+                     {
+                         "key":  "roleId",
+                         "value":  "",
+                         "type":  "string"
+                     }
+                 ],
+    "item":  [
+                 {
+                     "name":  "Authentication",
+                     "description":  "No JWT required for these endpoints.",
+                     "item":  [
+                                  {
+                                      "name":  "Register (new user)",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/auth/register",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "auth",
+                                                                               "register"
+                                                                           ]
+                                                              },
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"Password1!\",\n  \"role\": \"VIEWER\"\n}"
+                                                               }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "201 Created â€” returns JWT token",
+                                                           "status":  "Created",
+                                                           "code":  201,
+                                                           "body":  "{ \"token\": \"eyJhbGciOiJIUzI1NiJ9...\" }"
+                                                       },
+                                                       {
+                                                           "name":  "400 Validation error",
+                                                           "status":  "Bad Request",
+                                                           "code":  400,
+                                                           "body":  "{ \"error\": \"Validation failed\", \"message\": \"One or more fields have invalid values\", \"statusCode\": 400, \"fields\": { \"email\": \"Email must be valid\" } }"
+                                                       },
+                                                       {
+                                                           "name":  "409 Email already registered",
+                                                           "status":  "Conflict",
+                                                           "code":  409,
+                                                           "body":  "{ \"error\": \"Conflict\", \"message\": \"Email already registered\", \"statusCode\": 409 }"
+                                                       }
+                                                   ]
+                                  },
+                                  {
+                                      "name":  "Login â€” admin",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const json = pm.response.json();",
+                                                                                    "if (json.token) { pm.collectionVariables.set(\u0027adminToken\u0027, json.token); }"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/auth/login",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "auth",
+                                                                               "login"
+                                                                           ]
+                                                              },
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\n  \"email\": \"admin@finance.local\",\n  \"password\": \"Admin1234!\"\n}"
+                                                               }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "200 OK â€” JWT token (auto-saved to adminToken variable)",
+                                                           "status":  "OK",
+                                                           "code":  200,
+                                                           "body":  "{ \"token\": \"eyJhbGciOiJIUzI1NiJ9...\" }"
+                                                       },
+                                                       {
+                                                           "name":  "401 Wrong credentials",
+                                                           "status":  "Unauthorized",
+                                                           "code":  401,
+                                                           "body":  "{ \"error\": \"Unauthorized\", \"message\": \"Invalid credentials\", \"statusCode\": 401 }"
+                                                       }
+                                                   ]
+                                  },
+                                  {
+                                      "name":  "Login â€” analyst",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const json = pm.response.json();",
+                                                                                    "if (json.token) { pm.collectionVariables.set(\u0027analystToken\u0027, json.token); }"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/auth/login",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "auth",
+                                                                               "login"
+                                                                           ]
+                                                              },
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\n  \"email\": \"analyst@finance.local\",\n  \"password\": \"Analyst1234!\"\n}"
+                                                               }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "200 OK",
+                                                           "status":  "OK",
+                                                           "code":  200,
+                                                           "body":  "{ \"token\": \"eyJhbGciOiJIUzI1NiJ9...\" }"
+                                                       }
+                                                   ]
+                                  },
+                                  {
+                                      "name":  "Login â€” viewer",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/auth/login",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "auth",
+                                                                               "login"
+                                                                           ]
+                                                              },
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\n  \"email\": \"viewer@finance.local\",\n  \"password\": \"Viewer1234!\"\n}"
+                                                               }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "200 OK",
+                                                           "status":  "OK",
+                                                           "code":  200,
+                                                           "body":  "{ \"token\": \"eyJhbGciOiJIUzI1NiJ9...\" }"
+                                                       }
+                                                   ]
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "Financial Records",
+                     "description":  "All requests send `Authorization: Bearer {{adminToken}}`.\nMutations (POST, PUT, DELETE) require ADMIN role.\nGET endpoints are accessible by every authenticated role.",
+                     "item":  [
+                                  {
+                                      "name":  "Create record",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const json = pm.response.json();",
+                                                                                    "if (json.id) { pm.collectionVariables.set(\u0027recordId\u0027, json.id); }"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Authorization",
+                                                                         "value":  "Bearer {{adminToken}}"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/records",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "records"
+                                                                           ]
+                                                              },
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\n  \"amount\": 1500.00,\n  \"type\": \"INCOME\",\n  \"category\": \"Freelance\",\n  \"date\": \"2026-04-01\",\n  \"notes\": \"API testing payment\"\n}"
+                                                               }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "201 Created",
+                                                           "status":  "Created",
+                                                           "code":  201,
+                                                           "body":  "{\n  \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"amount\": 1500.00,\n  \"type\": \"INCOME\",\n  \"category\": \"Freelance\",\n  \"date\": \"2026-04-01\",\n  \"notes\": \"API testing payment\"\n}"
+                                                       },
+                                                       {
+                                                           "name":  "400 Validation â€” missing required fields",
+                                                           "status":  "Bad Request",
+                                                           "code":  400,
+                                                           "body":  "{ \"error\": \"Validation failed\", \"message\": \"One or more fields have invalid values\", \"statusCode\": 400, \"fields\": { \"amount\": \"Amount is required\" } }"
+                                                       },
+                                                       {
+                                                           "name":  "403 Forbidden â€” wrong role (analyst/viewer)",
+                                                           "status":  "Forbidden",
+                                                           "code":  403,
+                                                           "body":  "{ \"error\": \"Forbidden\", \"message\": \"Access denied\", \"statusCode\": 403 }"
+                                                       }
+                                                   ]
+                                  },
+                                  {
+                                      "name":  "List records (paginated)",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Authorization",
+                                                                         "value":  "Bearer {{adminToken}}"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/records?page=0\u0026size=10\u0026sort=date,desc",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "records"
+                                                                           ],
+                                                                  "query":  [
+                                                                                {
+                                                                                    "key":  "page",
+                                                                                    "value":  "0"
+                                                                                },
+                                                                                {
+                                                                                    "key":  "size",
+                                                                                    "value":  "10"
+                                                                                },
+                                                                                {
+                                                                                    "key":  "sort",
+                                                                                    "value":  "date,desc"
+                                                                                }
+                                                                            ]
+                                                              }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "200 OK â€” Page\u003cRecordResponse\u003e",
+                                                           "status":  "OK",
+                                                           "code":  200,
+                                                           "body":  "{\n  \"content\": [ { \"id\": \"...\", \"amount\": 1500.00, \"type\": \"INCOME\", \"category\": \"Freelance\", \"date\": \"2026-04-01\", \"notes\": \"...\" } ],\n  \"totalElements\": 30,\n  \"totalPages\": 3,\n  \"number\": 0,\n  \"size\": 10\n}"
+                                                       }
+                                                   ]
+                                  },
+                                  {
+                                      "name":  "List records â€” with filters",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Authorization",
+                                                                         "value":  "Bearer {{adminToken}}"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/records?type=EXPENSE\u0026category=Groceries\u0026startDate=2026-01-01\u0026endDate=2026-04-05\u0026page=0\u0026size=20",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "records"
+                                                                           ],
+                                                                  "query":  [
+                                                                                {
+                                                                                    "key":  "type",
+                                                                                    "value":  "EXPENSE"
+                                                                                },
+                                                                                {
+                                                                                    "key":  "category",
+                                                                                    "value":  "Groceries"
+                                                                                },
+                                                                                {
+                                                                                    "key":  "startDate",
+                                                                                    "value":  "2026-01-01"
+                                                                                },
+                                                                                {
+                                                                                    "key":  "endDate",
+                                                                                    "value":  "2026-04-05"
+                                                                                },
+                                                                                {
+                                                                                    "key":  "page",
+                                                                                    "value":  "0"
+                                                                                },
+                                                                                {
+                                                                                    "key":  "size",
+                                                                                    "value":  "20"
+                                                                                }
+                                                                            ]
+                                                              }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "200 OK â€” filtered page",
+                                                           "status":  "OK",
+                                                           "code":  200,
+                                                           "body":  "{ \"content\": [...], \"totalElements\": 2, \"totalPages\": 1, \"number\": 0, \"size\": 20 }"
+                                                       }
+                                                   ]
+                                  },
+                                  {
+                                      "name":  "Get record by ID",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Authorization",
+                                                                         "value":  "Bearer {{adminToken}}"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/records/{{recordId}}",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "records",
+                                                                               "{{recordId}}"
+                                                                           ]
+                                                              }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "200 OK",
+                                                           "status":  "OK",
+                                                           "code":  200,
+                                                           "body":  "{ \"id\": \"{{recordId}}\", \"amount\": 1500.00, \"type\": \"INCOME\", \"category\": \"Freelance\", \"date\": \"2026-04-01\", \"notes\": \"API testing payment\" }"
+                                                       },
+                                                       {
+                                                           "name":  "404 Not found",
+                                                           "status":  "Not Found",
+                                                           "code":  404,
+                                                           "body":  "{ \"error\": \"Not Found\", \"message\": \"Record not found: \u003cid\u003e\", \"statusCode\": 404 }"
+                                                       }
+                                                   ]
+                                  },
+                                  {
+                                      "name":  "Update record",
+                                      "request":  {
+                                                      "method":  "PUT",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Authorization",
+                                                                         "value":  "Bearer {{adminToken}}"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/records/{{recordId}}",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "records",
+                                                                               "{{recordId}}"
+                                                                           ]
+                                                              },
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\n  \"amount\": 1750.00,\n  \"type\": \"INCOME\",\n  \"category\": \"Freelance\",\n  \"date\": \"2026-04-02\",\n  \"notes\": \"Updated amount after invoice correction\"\n}"
+                                                               }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "200 OK â€” updated record",
+                                                           "status":  "OK",
+                                                           "code":  200,
+                                                           "body":  "{ \"id\": \"{{recordId}}\", \"amount\": 1750.00, \"type\": \"INCOME\", \"category\": \"Freelance\", \"date\": \"2026-04-02\", \"notes\": \"Updated amount after invoice correction\" }"
+                                                       },
+                                                       {
+                                                           "name":  "403 Forbidden",
+                                                           "status":  "Forbidden",
+                                                           "code":  403,
+                                                           "body":  "{ \"error\": \"Forbidden\", \"message\": \"Access denied\", \"statusCode\": 403 }"
+                                                       }
+                                                   ]
+                                  },
+                                  {
+                                      "name":  "Delete record (soft)",
+                                      "request":  {
+                                                      "method":  "DELETE",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Authorization",
+                                                                         "value":  "Bearer {{adminToken}}"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/records/{{recordId}}",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "records",
+                                                                               "{{recordId}}"
+                                                                           ]
+                                                              }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "204 No Content",
+                                                           "status":  "No Content",
+                                                           "code":  204,
+                                                           "body":  ""
+                                                       },
+                                                       {
+                                                           "name":  "404 Not found",
+                                                           "status":  "Not Found",
+                                                           "code":  404,
+                                                           "body":  "{ \"error\": \"Not Found\", \"message\": \"Record not found: \u003cid\u003e\", \"statusCode\": 404 }"
+                                                       }
+                                                   ]
+                                  },
+                                  {
+                                      "name":  "Record audit history",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Authorization",
+                                                                         "value":  "Bearer {{adminToken}}"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/records/{{recordId}}/history",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "records",
+                                                                               "{{recordId}}",
+                                                                               "history"
+                                                                           ]
+                                                              }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "200 OK â€” revisions newest-first (ADD â†’ MOD â†’ DEL)",
+                                                           "status":  "OK",
+                                                           "code":  200,
+                                                           "body":  "[\n  {\n    \"revision\": 4,\n    \"timestamp\": \"2026-04-05T10:30:00\",\n    \"changeType\": \"DEL\",\n    \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"amount\": 1750.00,\n    \"type\": \"INCOME\",\n    \"category\": \"Freelance\",\n    \"date\": \"2026-04-02\",\n    \"notes\": \"Updated amount after invoice correction\",\n    \"deletedAt\": \"2026-04-05T10:30:00\"\n  },\n  {\n    \"revision\": 3,\n    \"timestamp\": \"2026-04-05T10:25:00\",\n    \"changeType\": \"MOD\",\n    \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"amount\": 1750.00,\n    \"type\": \"INCOME\",\n    \"category\": \"Freelance\",\n    \"date\": \"2026-04-02\",\n    \"notes\": \"Updated amount after invoice correction\",\n    \"deletedAt\": null\n  },\n  {\n    \"revision\": 2,\n    \"timestamp\": \"2026-04-05T10:20:00\",\n    \"changeType\": \"MOD\",\n    \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"amount\": 1600.00,\n    \"type\": \"INCOME\",\n    \"category\": \"Freelance\",\n    \"date\": \"2026-04-01\",\n    \"notes\": \"Partial update\",\n    \"deletedAt\": null\n  },\n  {\n    \"revision\": 1,\n    \"timestamp\": \"2026-04-05T10:15:00\",\n    \"changeType\": \"ADD\",\n    \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"amount\": 1500.00,\n    \"type\": \"INCOME\",\n    \"category\": \"Freelance\",\n    \"date\": \"2026-04-01\",\n    \"notes\": \"API testing payment\",\n    \"deletedAt\": null\n  }\n]"
+                                                       },
+                                                       {
+                                                           "name":  "403 Forbidden â€” VIEWER role",
+                                                           "status":  "Forbidden",
+                                                           "code":  403,
+                                                           "body":  "{ \"error\": \"Forbidden\", \"message\": \"Access denied\", \"statusCode\": 403 }"
+                                                       },
+                                                       {
+                                                           "name":  "404 Not found",
+                                                           "status":  "Not Found",
+                                                           "code":  404,
+                                                           "body":  "{ \"error\": \"Not Found\", \"message\": \"Record not found: \u003cid\u003e\", \"statusCode\": 404 }"
+                                                       }
+                                                   ]
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "Dashboard",
+                     "description":  "All authenticated roles (VIEWER, ANALYST, ADMIN) can access all dashboard endpoints.",
+                     "item":  [
+                                  {
+                                      "name":  "Full summary",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Authorization",
+                                                                         "value":  "Bearer {{adminToken}}"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/dashboard/summary?startDate=2026-01-01\u0026endDate=2026-04-05",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "dashboard",
+                                                                               "summary"
+                                                                           ],
+                                                                  "query":  [
+                                                                                {
+                                                                                    "key":  "startDate",
+                                                                                    "value":  "2026-01-01"
+                                                                                },
+                                                                                {
+                                                                                    "key":  "endDate",
+                                                                                    "value":  "2026-04-05"
+                                                                                }
+                                                                            ]
+                                                              }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "200 OK",
+                                                           "status":  "OK",
+                                                           "code":  200,
+                                                           "body":  "{\n  \"totalIncome\": 13605.00,\n  \"totalExpenses\": 5045.00,\n  \"netBalance\": 8560.00,\n  \"byCategory\": [ { \"category\": \"Salary\", \"total\": 9200.00 } ],\n  \"trends\": [ { \"period\": \"2026-03\", \"income\": 6800.00, \"expense\": 2500.00 } ],\n  \"recentActivity\": []\n}"
+                                                       }
+                                                   ]
+                                  },
+                                  {
+                                      "name":  "Full summary (no date filter)",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Authorization",
+                                                                         "value":  "Bearer {{adminToken}}"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/dashboard/summary",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "dashboard",
+                                                                               "summary"
+                                                                           ]
+                                                              }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "200 OK â€” all-time totals",
+                                                           "status":  "OK",
+                                                           "code":  200,
+                                                           "body":  "{ \"totalIncome\": ..., \"totalExpenses\": ..., \"netBalance\": ... }"
+                                                       }
+                                                   ]
+                                  },
+                                  {
+                                      "name":  "Category totals",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Authorization",
+                                                                         "value":  "Bearer {{adminToken}}"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/dashboard/by-category?startDate=2026-01-01\u0026endDate=2026-04-05",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "dashboard",
+                                                                               "by-category"
+                                                                           ],
+                                                                  "query":  [
+                                                                                {
+                                                                                    "key":  "startDate",
+                                                                                    "value":  "2026-01-01"
+                                                                                },
+                                                                                {
+                                                                                    "key":  "endDate",
+                                                                                    "value":  "2026-04-05"
+                                                                                }
+                                                                            ]
+                                                              }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "200 OK",
+                                                           "status":  "OK",
+                                                           "code":  200,
+                                                           "body":  "[ { \"category\": \"Salary\", \"total\": 9200.00 }, { \"category\": \"Rent\", \"total\": 2200.00 } ]"
+                                                       }
+                                                   ]
+                                  },
+                                  {
+                                      "name":  "Monthly trends",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Authorization",
+                                                                         "value":  "Bearer {{adminToken}}"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/dashboard/trends?period=monthly\u0026startDate=2026-01-01\u0026endDate=2026-04-05",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "dashboard",
+                                                                               "trends"
+                                                                           ],
+                                                                  "query":  [
+                                                                                {
+                                                                                    "key":  "period",
+                                                                                    "value":  "monthly"
+                                                                                },
+                                                                                {
+                                                                                    "key":  "startDate",
+                                                                                    "value":  "2026-01-01"
+                                                                                },
+                                                                                {
+                                                                                    "key":  "endDate",
+                                                                                    "value":  "2026-04-05"
+                                                                                }
+                                                                            ]
+                                                              }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "200 OK",
+                                                           "status":  "OK",
+                                                           "code":  200,
+                                                           "body":  "[ { \"period\": \"2026-02\", \"income\": 5200.00, \"expense\": 1800.00 }, { \"period\": \"2026-03\", \"income\": 4500.00, \"expense\": 2100.00 } ]"
+                                                       }
+                                                   ]
+                                  },
+                                  {
+                                      "name":  "Recent activity",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Authorization",
+                                                                         "value":  "Bearer {{adminToken}}"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/dashboard/recent?limit=5",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "dashboard",
+                                                                               "recent"
+                                                                           ],
+                                                                  "query":  [
+                                                                                {
+                                                                                    "key":  "limit",
+                                                                                    "value":  "5"
+                                                                                }
+                                                                            ]
+                                                              }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "200 OK â€” latest 5 records",
+                                                           "status":  "OK",
+                                                           "code":  200,
+                                                           "body":  "[ { \"id\": \"...\", \"amount\": 5200.00, \"type\": \"INCOME\", \"category\": \"Salary\", \"date\": \"2026-04-04\", \"notes\": \"...\" } ]"
+                                                       }
+                                                   ]
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "User Management",
+                     "description":  "All endpoints require ADMIN role.",
+                     "item":  [
+                                  {
+                                      "name":  "List all users",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Authorization",
+                                                                         "value":  "Bearer {{adminToken}}"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/users",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "users"
+                                                                           ]
+                                                              }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "200 OK",
+                                                           "status":  "OK",
+                                                           "code":  200,
+                                                           "body":  "[\n  { \"id\": \"...\", \"name\": \"Admin User\", \"email\": \"admin@finance.local\", \"role\": \"ADMIN\", \"status\": \"ACTIVE\", \"createdAt\": \"2026-04-05T00:00:00\" },\n  { \"id\": \"...\", \"name\": \"Analyst User\", \"email\": \"analyst@finance.local\", \"role\": \"ANALYST\", \"status\": \"ACTIVE\", \"createdAt\": \"2026-04-05T00:00:00\" }\n]"
+                                                       },
+                                                       {
+                                                           "name":  "403 Forbidden â€” analyst/viewer",
+                                                           "status":  "Forbidden",
+                                                           "code":  403,
+                                                           "body":  "{ \"error\": \"Forbidden\", \"message\": \"Access denied\", \"statusCode\": 403 }"
+                                                       }
+                                                   ]
+                                  },
+                                  {
+                                      "name":  "Create user",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const json = pm.response.json();",
+                                                                                    "if (json.id) { pm.collectionVariables.set(\u0027userId\u0027, json.id); }"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Authorization",
+                                                                         "value":  "Bearer {{adminToken}}"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/users",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "users"
+                                                                           ]
+                                                              },
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\n  \"name\": \"New Analyst\",\n  \"email\": \"new.analyst@finance.local\",\n  \"password\": \"Password1!\",\n  \"role\": \"ANALYST\"\n}"
+                                                               }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "201 Created",
+                                                           "status":  "Created",
+                                                           "code":  201,
+                                                           "body":  "{ \"id\": \"...\", \"name\": \"New Analyst\", \"email\": \"new.analyst@finance.local\", \"role\": \"ANALYST\", \"status\": \"ACTIVE\", \"createdAt\": \"2026-04-05T10:00:00\" }"
+                                                       },
+                                                       {
+                                                           "name":  "409 Email already registered",
+                                                           "status":  "Conflict",
+                                                           "code":  409,
+                                                           "body":  "{ \"error\": \"Conflict\", \"message\": \"Email already registered\", \"statusCode\": 409 }"
+                                                       }
+                                                   ]
+                                  },
+                                  {
+                                      "name":  "Assign role (append)",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Authorization",
+                                                                         "value":  "Bearer {{adminToken}}"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/users/{{userId}}/roles/{{roleId}}?reason=promotion",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "users",
+                                                                               "{{userId}}",
+                                                                               "roles",
+                                                                               "{{roleId}}"
+                                                                           ],
+                                                                  "query":  [
+                                                                                {
+                                                                                    "key":  "reason",
+                                                                                    "value":  "promotion"
+                                                                                }
+                                                                            ]
+                                                              }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "200 OK — UserResponse (multi-role user now holds this role too)",
+                                                           "status":  "OK",
+                                                           "code":  200,
+                                                           "body":  "{ \"id\": \"{{userId}}\", \"name\": \"...\", \"email\": \"...\", \"status\": \"ACTIVE\" }"
+                                                       },
+                                                       {
+                                                           "name":  "409 Conflict — user already has this role",
+                                                           "status":  "Conflict",
+                                                           "code":  409,
+                                                           "body":  "{ \"error\": \"Conflict\", \"message\": \"User already has this role\", \"statusCode\": 409 }"
+                                                       },
+                                                       {
+                                                           "name":  "404 User or role not found",
+                                                           "status":  "Not Found",
+                                                           "code":  404,
+                                                           "body":  "{ \"error\": \"Not Found\", \"message\": \"User not found\", \"statusCode\": 404 }"
+                                                       }
+                                                   ]
+                                  },
+                                  {
+                                      "name":  "Revoke role (guard: last role)",
+                                      "request":  {
+                                                      "method":  "DELETE",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Authorization",
+                                                                         "value":  "Bearer {{adminToken}}"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/users/{{userId}}/roles/{{roleId}}?reason=demotion",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "users",
+                                                                               "{{userId}}",
+                                                                               "roles",
+                                                                               "{{roleId}}"
+                                                                           ],
+                                                                  "query":  [
+                                                                                {
+                                                                                    "key":  "reason",
+                                                                                    "value":  "demotion"
+                                                                                }
+                                                                            ]
+                                                              }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "200 OK — UserResponse (role removed)",
+                                                           "status":  "OK",
+                                                           "code":  200,
+                                                           "body":  "{ \"id\": \"{{userId}}\", \"name\": \"...\", \"email\": \"...\", \"status\": \"ACTIVE\" }"
+                                                       },
+                                                       {
+                                                           "name":  "400 Bad Request — cannot revoke last role",
+                                                           "status":  "Bad Request",
+                                                           "code":  400,
+                                                           "body":  "{ \"error\": \"Bad Request\", \"message\": \"Cannot revoke the last role from a user\", \"statusCode\": 400 }"
+                                                       },
+                                                       {
+                                                           "name":  "404 User does not hold this role",
+                                                           "status":  "Not Found",
+                                                           "code":  404,
+                                                           "body":  "{ \"error\": \"Not Found\", \"message\": \"User does not hold this role\", \"statusCode\": 404 }"
+                                                       }
+                                                   ]
+                                  },
+                                  {
+                                      "name":  "Get user effective permissions",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Authorization",
+                                                                         "value":  "Bearer {{adminToken}}"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/users/{{userId}}/permissions",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "users",
+                                                                               "{{userId}}",
+                                                                               "permissions"
+                                                                           ]
+                                                              }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "200 OK — deduplicated union of all role permissions (Composite pattern)",
+                                                           "status":  "OK",
+                                                           "code":  200,
+                                                           "body":  "[ { \"id\": \"...\", \"name\": \"records:read\" }, { \"id\": \"...\", \"name\": \"dashboard:read\" } ]"
+                                                       },
+                                                       {
+                                                           "name":  "403 Forbidden — non-ADMIN",
+                                                           "status":  "Forbidden",
+                                                           "code":  403,
+                                                           "body":  "{ \"error\": \"Forbidden\", \"message\": \"Access Denied\", \"statusCode\": 403 }"
+                                                       }
+                                                   ]
+                                  },
+                                  {
+                                      "name":  "Toggle status (suspend)",
+                                      "request":  {
+                                                      "method":  "PATCH",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Authorization",
+                                                                         "value":  "Bearer {{adminToken}}"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/users/{{userId}}/status",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "users",
+                                                                               "{{userId}}",
+                                                                               "status"
+                                                                           ]
+                                                              },
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\n  \"status\": \"SUSPENDED\"\n}"
+                                                               }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "200 OK â€” user suspended",
+                                                           "status":  "OK",
+                                                           "code":  200,
+                                                           "body":  "{ \"id\": \"...\", \"name\": \"New Analyst\", \"email\": \"new.analyst@finance.local\", \"role\": \"ADMIN\", \"status\": \"SUSPENDED\", \"createdAt\": \"...\" }"
+                                                       }
+                                                   ]
+                                  },
+                                  {
+                                      "name":  "Toggle status (reactivate)",
+                                      "request":  {
+                                                      "method":  "PATCH",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Authorization",
+                                                                         "value":  "Bearer {{adminToken}}"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/users/{{userId}}/status",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "users",
+                                                                               "{{userId}}",
+                                                                               "status"
+                                                                           ]
+                                                              },
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\n  \"status\": \"ACTIVE\"\n}"
+                                                               }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "200 OK â€” user reactivated",
+                                                           "status":  "OK",
+                                                           "code":  200,
+                                                           "body":  "{ \"id\": \"...\", \"name\": \"New Analyst\", \"email\": \"new.analyst@finance.local\", \"role\": \"ADMIN\", \"status\": \"ACTIVE\", \"createdAt\": \"...\" }"
+                                                       }
+                                                   ]
+                                  },
+                                  {
+                                      "name":  "User role-change history",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Authorization",
+                                                                         "value":  "Bearer {{adminToken}}"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/users/{{userId}}/role-history",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "users",
+                                                                               "{{userId}}",
+                                                                               "role-history"
+                                                                           ]
+                                                              }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "200 OK â€” role changes newest-first",
+                                                           "status":  "OK",
+                                                           "code":  200,
+                                                           "body":  "[\n  {\n    \"id\": \"a1b2c3d4-...\",\n    \"userId\": \"{{userId}}\",\n    \"userName\": \"New Analyst\",\n    \"previousRole\": \"ANALYST\",\n    \"newRole\": \"ADMIN\",\n    \"changedById\": \"admin-uuid-...\",\n    \"changedByName\": \"Admin User\",\n    \"reason\": \"Promoted after probation period\",\n    \"changedAt\": \"2026-04-05T10:40:00\"\n  },\n  {\n    \"id\": \"b2c3d4e5-...\",\n    \"userId\": \"{{userId}}\",\n    \"userName\": \"New Analyst\",\n    \"previousRole\": \"VIEWER\",\n    \"newRole\": \"ANALYST\",\n    \"changedById\": \"admin-uuid-...\",\n    \"changedByName\": \"Admin User\",\n    \"reason\": null,\n    \"changedAt\": \"2026-04-05T10:10:00\"\n  }\n]"
+                                                       },
+                                                       {
+                                                           "name":  "404 User not found",
+                                                           "status":  "Not Found",
+                                                           "code":  404,
+                                                           "body":  "{ \"error\": \"Not Found\", \"message\": \"User not found: \u003cid\u003e\", \"statusCode\": 404 }"
+                                                       },
+                                                       {
+                                                           "name":  "403 Forbidden â€” non-ADMIN",
+                                                           "status":  "Forbidden",
+                                                           "code":  403,
+                                                           "body":  "{ \"error\": \"Forbidden\", \"message\": \"Access denied\", \"statusCode\": 403 }"
+                                                       }
+                                                   ]
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "Permission Management",
+                     "description":  "CRUD for permissions (ADMIN only). Permissions follow the format resource:action (e.g. records:read).",
+                     "item":  [
+                                  {
+                                      "name":  "List all permissions",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Authorization",
+                                                                         "value":  "Bearer {{adminToken}}"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/permissions",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "permissions"
+                                                                           ]
+                                                              }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "200 OK — list of PermissionResponse",
+                                                           "status":  "OK",
+                                                           "code":  200,
+                                                           "body":  "[ { \"id\": \"...\", \"name\": \"records:read\" }, { \"id\": \"...\", \"name\": \"records:write\" } ]"
+                                                       },
+                                                       {
+                                                           "name":  "403 Forbidden — non-ADMIN",
+                                                           "status":  "Forbidden",
+                                                           "code":  403,
+                                                           "body":  "{ \"error\": \"Forbidden\", \"message\": \"Access Denied\", \"statusCode\": 403 }"
+                                                       }
+                                                   ]
+                                  },
+                                  {
+                                      "name":  "Get permission by ID",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Authorization",
+                                                                         "value":  "Bearer {{adminToken}}"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/permissions/{{permissionId}}",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "permissions",
+                                                                               "{{permissionId}}"
+                                                                           ]
+                                                              }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "200 OK",
+                                                           "status":  "OK",
+                                                           "code":  200,
+                                                           "body":  "{ \"id\": \"{{permissionId}}\", \"name\": \"records:read\" }"
+                                                       },
+                                                       {
+                                                           "name":  "404 Not found",
+                                                           "status":  "Not Found",
+                                                           "code":  404,
+                                                           "body":  "{ \"error\": \"Not Found\", \"message\": \"Permission not found\", \"statusCode\": 404 }"
+                                                       }
+                                                   ]
+                                  },
+                                  {
+                                      "name":  "Create permission",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const json = pm.response.json();",
+                                                                                    "if (json.id) { pm.collectionVariables.set(\u0027permissionId\u0027, json.id); }"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Authorization",
+                                                                         "value":  "Bearer {{adminToken}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/permissions",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "permissions"
+                                                                           ]
+                                                              },
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\\n  \"name\": \"records:export\"\\n}"
+                                                               }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "201 Created — auto-saves permissionId variable",
+                                                           "status":  "Created",
+                                                           "code":  201,
+                                                           "body":  "{ \"id\": \"...\", \"name\": \"records:export\" }"
+                                                       },
+                                                       {
+                                                           "name":  "400 Invalid name format",
+                                                           "status":  "Bad Request",
+                                                           "code":  400,
+                                                           "body":  "{ \"error\": \"Bad Request\", \"message\": \"Permission name must match format resource:action\", \"statusCode\": 400 }"
+                                                       },
+                                                       {
+                                                           "name":  "409 Name already exists",
+                                                           "status":  "Conflict",
+                                                           "code":  409,
+                                                           "body":  "{ \"error\": \"Conflict\", \"message\": \"Permission name already exists\", \"statusCode\": 409 }"
+                                                       }
+                                                   ]
+                                  },
+                                  {
+                                      "name":  "Delete permission",
+                                      "request":  {
+                                                      "method":  "DELETE",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Authorization",
+                                                                         "value":  "Bearer {{adminToken}}"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/permissions/{{permissionId}}",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "permissions",
+                                                                               "{{permissionId}}"
+                                                                           ]
+                                                              }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "204 No Content",
+                                                           "status":  "No Content",
+                                                           "code":  204,
+                                                           "body":  ""
+                                                       },
+                                                       {
+                                                           "name":  "409 Conflict — permission assigned to a role",
+                                                           "status":  "Conflict",
+                                                           "code":  409,
+                                                           "body":  "{ \"error\": \"Conflict\", \"message\": \"Permission is assigned to one or more roles\", \"statusCode\": 409 }"
+                                                       },
+                                                       {
+                                                           "name":  "404 Not found",
+                                                           "status":  "Not Found",
+                                                           "code":  404,
+                                                           "body":  "{ \"error\": \"Not Found\", \"message\": \"Permission not found\", \"statusCode\": 404 }"
+                                                       }
+                                                   ]
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "Role Management",
+                     "description":  "CRUD for roles and their permission assignments (ADMIN only).",
+                     "item":  [
+                                  {
+                                      "name":  "List all roles",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Authorization",
+                                                                         "value":  "Bearer {{adminToken}}"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/roles",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "roles"
+                                                                           ]
+                                                              }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "200 OK — list of RoleResponse with permissions",
+                                                           "status":  "OK",
+                                                           "code":  200,
+                                                           "body":  "[ { \"id\": \"...\", \"name\": \"ADMIN\", \"permissions\": [ { \"id\": \"...\", \"name\": \"records:write\" } ] } ]"
+                                                       }
+                                                   ]
+                                  },
+                                  {
+                                      "name":  "Get role by ID",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Authorization",
+                                                                         "value":  "Bearer {{adminToken}}"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/roles/{{roleId}}",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "roles",
+                                                                               "{{roleId}}"
+                                                                           ]
+                                                              }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "200 OK",
+                                                           "status":  "OK",
+                                                           "code":  200,
+                                                           "body":  "{ \"id\": \"{{roleId}}\", \"name\": \"ADMIN\", \"permissions\": [] }"
+                                                       },
+                                                       {
+                                                           "name":  "404 Not found",
+                                                           "status":  "Not Found",
+                                                           "code":  404,
+                                                           "body":  "{ \"error\": \"Not Found\", \"message\": \"Role not found\", \"statusCode\": 404 }"
+                                                       }
+                                                   ]
+                                  },
+                                  {
+                                      "name":  "Create role",
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "exec":  [
+                                                                                    "const json = pm.response.json();",
+                                                                                    "if (json.id) { pm.collectionVariables.set(\u0027roleId\u0027, json.id); }"
+                                                                                ],
+                                                                       "type":  "text/javascript"
+                                                                   }
+                                                    }
+                                                ],
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Authorization",
+                                                                         "value":  "Bearer {{adminToken}}"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/roles",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "roles"
+                                                                           ]
+                                                              },
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\\n  \"name\": \"AUDITOR\"\\n}"
+                                                               }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "201 Created — auto-saves roleId variable",
+                                                           "status":  "Created",
+                                                           "code":  201,
+                                                           "body":  "{ \"id\": \"...\", \"name\": \"AUDITOR\", \"permissions\": [] }"
+                                                       },
+                                                       {
+                                                           "name":  "409 Name already exists",
+                                                           "status":  "Conflict",
+                                                           "code":  409,
+                                                           "body":  "{ \"error\": \"Conflict\", \"message\": \"Role name already exists\", \"statusCode\": 409 }"
+                                                       }
+                                                   ]
+                                  },
+                                  {
+                                      "name":  "Add permission to role",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Authorization",
+                                                                         "value":  "Bearer {{adminToken}}"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/roles/{{roleId}}/permissions/{{permissionId}}",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "roles",
+                                                                               "{{roleId}}",
+                                                                               "permissions",
+                                                                               "{{permissionId}}"
+                                                                           ]
+                                                              }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "200 OK — updated RoleResponse (now includes the permission)",
+                                                           "status":  "OK",
+                                                           "code":  200,
+                                                           "body":  "{ \"id\": \"{{roleId}}\", \"name\": \"AUDITOR\", \"permissions\": [ { \"id\": \"{{permissionId}}\", \"name\": \"records:export\" } ] }"
+                                                       },
+                                                       {
+                                                           "name":  "404 Role or permission not found",
+                                                           "status":  "Not Found",
+                                                           "code":  404,
+                                                           "body":  "{ \"error\": \"Not Found\", \"message\": \"Role not found\", \"statusCode\": 404 }"
+                                                       }
+                                                   ]
+                                  },
+                                  {
+                                      "name":  "Remove permission from role",
+                                      "request":  {
+                                                      "method":  "DELETE",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Authorization",
+                                                                         "value":  "Bearer {{adminToken}}"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/roles/{{roleId}}/permissions/{{permissionId}}",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "roles",
+                                                                               "{{roleId}}",
+                                                                               "permissions",
+                                                                               "{{permissionId}}"
+                                                                           ]
+                                                              }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "200 OK — updated RoleResponse (permission removed)",
+                                                           "status":  "OK",
+                                                           "code":  200,
+                                                           "body":  "{ \"id\": \"{{roleId}}\", \"name\": \"AUDITOR\", \"permissions\": [] }"
+                                                       },
+                                                       {
+                                                           "name":  "404 Not found",
+                                                           "status":  "Not Found",
+                                                           "code":  404,
+                                                           "body":  "{ \"error\": \"Not Found\", \"message\": \"Role not found\", \"statusCode\": 404 }"
+                                                       }
+                                                   ]
+                                  },
+                                  {
+                                      "name":  "Delete role",
+                                      "request":  {
+                                                      "method":  "DELETE",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Authorization",
+                                                                         "value":  "Bearer {{adminToken}}"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/roles/{{roleId}}",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "roles",
+                                                                               "{{roleId}}"
+                                                                           ]
+                                                              }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "204 No Content",
+                                                           "status":  "No Content",
+                                                           "code":  204,
+                                                           "body":  ""
+                                                       },
+                                                       {
+                                                           "name":  "409 Conflict — role assigned to users",
+                                                           "status":  "Conflict",
+                                                           "code":  409,
+                                                           "body":  "{ \"error\": \"Conflict\", \"message\": \"Role is assigned to one or more users\", \"statusCode\": 409 }"
+                                                       },
+                                                       {
+                                                           "name":  "404 Not found",
+                                                           "status":  "Not Found",
+                                                           "code":  404,
+                                                           "body":  "{ \"error\": \"Not Found\", \"message\": \"Role not found\", \"statusCode\": 404 }"
+                                                       }
+                                                   ]
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "Error scenarios",
+                     "description":  "Requests that intentionally produce 4xx responses for testing the global error handler.",
+                     "item":  [
+                                  {
+                                      "name":  "401 â€” No token",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/records",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "records"
+                                                                           ]
+                                                              }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "401 Unauthorized",
+                                                           "status":  "Unauthorized",
+                                                           "code":  401,
+                                                           "body":  "{ \"error\": \"Unauthorized\", \"message\": \"Authentication required\", \"statusCode\": 401 }"
+                                                       }
+                                                   ]
+                                  },
+                                  {
+                                      "name":  "403 â€” Analyst tries to create record",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Authorization",
+                                                                         "value":  "Bearer {{analystToken}}"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/records",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "records"
+                                                                           ]
+                                                              },
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\n  \"amount\": 100.00,\n  \"type\": \"EXPENSE\",\n  \"category\": \"Test\",\n  \"date\": \"2026-04-05\"\n}"
+                                                               }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "403 Forbidden",
+                                                           "status":  "Forbidden",
+                                                           "code":  403,
+                                                           "body":  "{ \"error\": \"Forbidden\", \"message\": \"Access denied\", \"statusCode\": 403 }"
+                                                       }
+                                                   ]
+                                  },
+                                  {
+                                      "name":  "400 â€” Invalid create record body",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     },
+                                                                     {
+                                                                         "key":  "Authorization",
+                                                                         "value":  "Bearer {{adminToken}}"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/records",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "records"
+                                                                           ]
+                                                              },
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\n  \"amount\": -50,\n  \"category\": \"\"\n}"
+                                                               }
+                                                  },
+                                      "response":  [
+                                                       {
+                                                           "name":  "400 Validation failed",
+                                                           "status":  "Bad Request",
+                                                           "code":  400,
+                                                           "body":  "{ \"error\": \"Validation failed\", \"message\": \"One or more fields have invalid values\", \"statusCode\": 400, \"fields\": { \"amount\": \"Amount must be positive\", \"type\": \"Type is required\", \"category\": \"Category is required\", \"date\": \"Date is required\" } }"
+                                                       }
+                                                   ]
+                                  }
+                              ]
+                 }
+             ]
+}
