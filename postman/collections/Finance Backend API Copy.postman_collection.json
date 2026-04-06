@@ -1,0 +1,1999 @@
+{
+  "info": {
+    "_postman_id": "259e2b29-84ed-4525-8246-6a5d85bdae06",
+    "name": "Finance Backend API Copy",
+    "description": "Complete collection covering Auth, Financial Records, Dashboard, and User Management.\n\n**Quick start:**\n1. Run `POST /api/auth/login` with seeded credentials.\n2. Copy the returned `token` value.\n3. In Collection â†’ Edit â†’ Variables, paste it into the `adminToken` current value.\n4. All other requests will automatically send `Authorization: Bearer <token>`.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register (new user)",
+          "id": "2aa6305d-0ec4-4eba-92ab-fa95cca4f55e",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"Password1!\",\n  \"role\": \"VIEWER\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "7e6b5c92-620d-40d7-9869-83e77d572941",
+              "name": "201 Created  returns JWT token",
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"token\": \"eyJhbGciOiJIUzI1NiJ9...\" }"
+            },
+            {
+              "id": "bb7b4099-f8e9-41c4-ab29-f05f9d3958db",
+              "name": "400 Validation error",
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Validation failed\", \"message\": \"One or more fields have invalid values\", \"statusCode\": 400, \"fields\": { \"email\": \"Email must be valid\" } }"
+            },
+            {
+              "id": "08ebf163-7b3e-45db-9b71-c2d600809f7a",
+              "name": "409 Email already registered",
+              "status": "Conflict",
+              "code": 409,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Conflict\", \"message\": \"Email already registered\", \"statusCode\": 409 }"
+            }
+          ]
+        },
+        {
+          "name": "Login  analyst",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.token) { pm.collectionVariables.set('analystToken', json.token); }"
+                ],
+                "type": "text/javascript",
+                "id": "2320d30f-4abd-453a-83d2-3bae9435444c"
+              }
+            }
+          ],
+          "id": "fd038e61-5d28-45ae-aee0-b0687e92d97f",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"analyst@finance.local\",\n  \"password\": \"Analyst1234!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "ec5a5dc5-8727-40f0-a483-ab3b2c7b3fac",
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"token\": \"eyJhbGciOiJIUzI1NiJ9...\" }"
+            }
+          ]
+        },
+        {
+          "name": "Login  admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.token) { pm.collectionVariables.set('adminToken', json.token); }"
+                ],
+                "type": "text/javascript",
+                "id": "82ca29fa-ebf2-451d-9e98-28c0a74b4429"
+              }
+            }
+          ],
+          "id": "4c12e635-9c71-4198-8e0c-74d96b391e89",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@finance.local\",\n  \"password\": \"Admin1234!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "d480adc8-a425-4b18-b65a-208cef191f7f",
+              "name": "200 OK  JWT token (auto-saved to adminToken variable)",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"token\": \"eyJhbGciOiJIUzI1NiJ9...\" }"
+            },
+            {
+              "id": "ada2623b-7e6b-4117-a10c-9c0b36017933",
+              "name": "401 Wrong credentials",
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Unauthorized\", \"message\": \"Invalid credentials\", \"statusCode\": 401 }"
+            }
+          ]
+        },
+        {
+          "name": "Login  viewer",
+          "id": "c2768633-980d-4036-966d-b68629503185",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"viewer@finance.local\",\n  \"password\": \"Viewer1234!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "3a2e1846-50ec-4a24-8731-2927131c3f1d",
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"token\": \"eyJhbGciOiJIUzI1NiJ9...\" }"
+            }
+          ]
+        }
+      ],
+      "id": "50969d1c-fc0f-49ce-b98f-4502cb9d3987",
+      "description": "No JWT required for these endpoints."
+    },
+    {
+      "name": "Financial Records",
+      "item": [
+        {
+          "name": "Create record",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.id) { pm.collectionVariables.set('recordId', json.id); }"
+                ],
+                "type": "text/javascript",
+                "id": "d4103145-180b-4f32-bce4-a8c5b529137e"
+              }
+            }
+          ],
+          "id": "d53ec417-ace7-4f47-b888-337ee795b0a0",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 1500.00,\n  \"type\": \"INCOME\",\n  \"category\": \"Freelance\",\n  \"date\": \"2026-04-01\",\n  \"notes\": \"API testing payment\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/records",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "records"
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "fbb28c3b-dff9-410f-b1c9-a04d3170671c",
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"amount\": 1500.00,\n  \"type\": \"INCOME\",\n  \"category\": \"Freelance\",\n  \"date\": \"2026-04-01\",\n  \"notes\": \"API testing payment\"\n}"
+            },
+            {
+              "id": "f7459d05-fe3b-409a-9ed3-7123b2df5f0a",
+              "name": "400 Validation  missing required fields",
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Validation failed\", \"message\": \"One or more fields have invalid values\", \"statusCode\": 400, \"fields\": { \"amount\": \"Amount is required\" } }"
+            },
+            {
+              "id": "83397c95-f39a-4b3e-9d6c-c9825a348c52",
+              "name": "403 Forbidden  wrong role (analyst/viewer)",
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Forbidden\", \"message\": \"Access denied\", \"statusCode\": 403 }"
+            }
+          ]
+        },
+        {
+          "name": "List records (paginated)",
+          "id": "589e29d3-a8f3-4342-8bc4-799a7280504a",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/records?page=0&size=10&sort=date,desc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "records"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                },
+                {
+                  "key": "sort",
+                  "value": "date,desc"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "f3efe462-4e65-43ae-82c8-1e87edaf0670",
+              "name": "200 OK  Page<RecordResponse>",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"content\": [ { \"id\": \"...\", \"amount\": 1500.00, \"type\": \"INCOME\", \"category\": \"Freelance\", \"date\": \"2026-04-01\", \"notes\": \"...\" } ],\n  \"totalElements\": 30,\n  \"totalPages\": 3,\n  \"number\": 0,\n  \"size\": 10\n}"
+            }
+          ]
+        },
+        {
+          "name": "List records  with filters",
+          "id": "a3dbc79a-350d-4cbb-b624-d471c4c3f516",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/records?type=EXPENSE&category=Groceries&startDate=2026-01-01&endDate=2026-04-05&page=0&size=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "records"
+              ],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "EXPENSE"
+                },
+                {
+                  "key": "category",
+                  "value": "Groceries"
+                },
+                {
+                  "key": "startDate",
+                  "value": "2026-01-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2026-04-05"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "5dd56410-fe89-487f-972a-561790abd85e",
+              "name": "200 OK  filtered page",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"content\": [...], \"totalElements\": 2, \"totalPages\": 1, \"number\": 0, \"size\": 20 }"
+            }
+          ]
+        },
+        {
+          "name": "Get record by ID",
+          "id": "63001f29-77c9-4524-9af5-53e4b4f44e8d",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/records/{{recordId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "records",
+                "{{recordId}}"
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "8d1b243a-e3ef-4cbf-9d02-d40f32fdf35c",
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"id\": \"{{recordId}}\", \"amount\": 1500.00, \"type\": \"INCOME\", \"category\": \"Freelance\", \"date\": \"2026-04-01\", \"notes\": \"API testing payment\" }"
+            },
+            {
+              "id": "535f1716-c7a8-4305-b9d8-47d5610726c3",
+              "name": "404 Not found",
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Not Found\", \"message\": \"Record not found: <id>\", \"statusCode\": 404 }"
+            }
+          ]
+        },
+        {
+          "name": "Update record",
+          "id": "98bbbc30-d4eb-46fe-b55a-db406a68cf52",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 1750.00,\n  \"type\": \"INCOME\",\n  \"category\": \"Freelance\",\n  \"date\": \"2026-04-02\",\n  \"notes\": \"Updated amount after invoice correction\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/records/{{recordId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "records",
+                "{{recordId}}"
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "a2ac84ea-e7f1-4f2f-9ace-7013ee87c289",
+              "name": "200 OK  updated record",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"id\": \"{{recordId}}\", \"amount\": 1750.00, \"type\": \"INCOME\", \"category\": \"Freelance\", \"date\": \"2026-04-02\", \"notes\": \"Updated amount after invoice correction\" }"
+            },
+            {
+              "id": "91069c3e-6bb0-4b07-a6da-1dbc1834ce68",
+              "name": "403 Forbidden",
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Forbidden\", \"message\": \"Access denied\", \"statusCode\": 403 }"
+            }
+          ]
+        },
+        {
+          "name": "Delete record (soft)",
+          "id": "1b6a725d-75cd-4765-a72b-991b08568efd",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/records/{{recordId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "records",
+                "{{recordId}}"
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "411b2b2f-fa6c-4586-b70b-420030373f18",
+              "name": "204 No Content",
+              "status": "No Content",
+              "code": 204,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": ""
+            },
+            {
+              "id": "48745242-883a-4a50-b551-d6e6bc038ca3",
+              "name": "404 Not found",
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Not Found\", \"message\": \"Record not found: <id>\", \"statusCode\": 404 }"
+            }
+          ]
+        },
+        {
+          "name": "Record audit history",
+          "id": "3f3f2acf-a156-4bad-b6be-b14f6a4f0271",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/records/{{recordId}}/history",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "records",
+                "{{recordId}}",
+                "history"
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "2595aa26-aea0-4966-9a7c-482e5c1dbbe6",
+              "name": "200 OK  revisions newest-first (ADD â†’ MOD â†’ DEL)",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "[\n  {\n    \"revision\": 4,\n    \"timestamp\": \"2026-04-05T10:30:00\",\n    \"changeType\": \"DEL\",\n    \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"amount\": 1750.00,\n    \"type\": \"INCOME\",\n    \"category\": \"Freelance\",\n    \"date\": \"2026-04-02\",\n    \"notes\": \"Updated amount after invoice correction\",\n    \"deletedAt\": \"2026-04-05T10:30:00\"\n  },\n  {\n    \"revision\": 3,\n    \"timestamp\": \"2026-04-05T10:25:00\",\n    \"changeType\": \"MOD\",\n    \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"amount\": 1750.00,\n    \"type\": \"INCOME\",\n    \"category\": \"Freelance\",\n    \"date\": \"2026-04-02\",\n    \"notes\": \"Updated amount after invoice correction\",\n    \"deletedAt\": null\n  },\n  {\n    \"revision\": 2,\n    \"timestamp\": \"2026-04-05T10:20:00\",\n    \"changeType\": \"MOD\",\n    \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"amount\": 1600.00,\n    \"type\": \"INCOME\",\n    \"category\": \"Freelance\",\n    \"date\": \"2026-04-01\",\n    \"notes\": \"Partial update\",\n    \"deletedAt\": null\n  },\n  {\n    \"revision\": 1,\n    \"timestamp\": \"2026-04-05T10:15:00\",\n    \"changeType\": \"ADD\",\n    \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"amount\": 1500.00,\n    \"type\": \"INCOME\",\n    \"category\": \"Freelance\",\n    \"date\": \"2026-04-01\",\n    \"notes\": \"API testing payment\",\n    \"deletedAt\": null\n  }\n]"
+            },
+            {
+              "id": "f4854a14-6761-4913-9f31-f8f2626e8a22",
+              "name": "403 Forbidden  VIEWER role",
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Forbidden\", \"message\": \"Access denied\", \"statusCode\": 403 }"
+            },
+            {
+              "id": "e2b5454f-b06c-4522-94b8-98e9da85a3d2",
+              "name": "404 Not found",
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Not Found\", \"message\": \"Record not found: <id>\", \"statusCode\": 404 }"
+            }
+          ]
+        }
+      ],
+      "id": "a5063c03-bf0c-470e-ab1e-e85179a5b689",
+      "description": "All requests send `Authorization: Bearer {{adminToken}}`.\nMutations (POST, PUT, DELETE) require ADMIN role.\nGET endpoints are accessible by every authenticated role."
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Full summary",
+          "id": "91cc112e-0460-4255-b0b5-9c63485e9e82",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/summary?startDate=2026-01-01&endDate=2026-04-05",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "summary"
+              ],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2026-01-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2026-04-05"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "4e4c2d0f-d3c7-4ecb-933d-1f0019181010",
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"totalIncome\": 13605.00,\n  \"totalExpenses\": 5045.00,\n  \"netBalance\": 8560.00,\n  \"byCategory\": [ { \"category\": \"Salary\", \"total\": 9200.00 } ],\n  \"trends\": [ { \"period\": \"2026-03\", \"income\": 6800.00, \"expense\": 2500.00 } ],\n  \"recentActivity\": []\n}"
+            }
+          ]
+        },
+        {
+          "name": "Full summary (no date filter)",
+          "id": "a3347646-0d55-46a1-a34b-c702d3c72881",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "summary"
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "f1eb4f6f-810d-41f9-ba89-b28d3b65784e",
+              "name": "200 OK  all-time totals",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"totalIncome\": ..., \"totalExpenses\": ..., \"netBalance\": ... }"
+            }
+          ]
+        },
+        {
+          "name": "Category totals",
+          "id": "85dfde4d-dce9-4b91-b679-865beea526be",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/by-category?startDate=2026-01-01&endDate=2026-04-05",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "by-category"
+              ],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2026-01-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2026-04-05"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "91219b5f-29d8-46e6-b8e7-5bd541eb1126",
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "[ { \"category\": \"Salary\", \"total\": 9200.00 }, { \"category\": \"Rent\", \"total\": 2200.00 } ]"
+            }
+          ]
+        },
+        {
+          "name": "Monthly trends",
+          "id": "1b825e11-e676-4e54-aa1b-5601f62fcea7",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/trends?period=monthly&startDate=2026-01-01&endDate=2026-04-05",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "trends"
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "monthly"
+                },
+                {
+                  "key": "startDate",
+                  "value": "2026-01-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2026-04-05"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "d23f9fb4-669e-4f1d-9fa1-fe3321072956",
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "[ { \"period\": \"2026-02\", \"income\": 5200.00, \"expense\": 1800.00 }, { \"period\": \"2026-03\", \"income\": 4500.00, \"expense\": 2100.00 } ]"
+            }
+          ]
+        },
+        {
+          "name": "Recent activity",
+          "id": "33788310-d554-407d-ab91-2c436876e500",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/recent?limit=5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "recent"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "11d3da62-13fe-48ab-8c67-af05e7476857",
+              "name": "200 OK  latest 5 records",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "[ { \"id\": \"...\", \"amount\": 5200.00, \"type\": \"INCOME\", \"category\": \"Salary\", \"date\": \"2026-04-04\", \"notes\": \"...\" } ]"
+            }
+          ]
+        }
+      ],
+      "id": "bb9483bc-62df-4098-ae57-f6ebd283877a",
+      "description": "All authenticated roles (VIEWER, ANALYST, ADMIN) can access all dashboard endpoints."
+    },
+    {
+      "name": "User Management",
+      "item": [
+        {
+          "name": "List all users",
+          "id": "7ecac0d7-db81-4b18-b8f9-0a6d582715e5",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "2a5d1e1b-b834-4816-8d8c-b752a12e480f",
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "[\n  { \"id\": \"...\", \"name\": \"Admin User\", \"email\": \"admin@finance.local\", \"role\": \"ADMIN\", \"status\": \"ACTIVE\", \"createdAt\": \"2026-04-05T00:00:00\" },\n  { \"id\": \"...\", \"name\": \"Analyst User\", \"email\": \"analyst@finance.local\", \"role\": \"ANALYST\", \"status\": \"ACTIVE\", \"createdAt\": \"2026-04-05T00:00:00\" }\n]"
+            },
+            {
+              "id": "7bedcc18-3707-47d8-9a16-526f3ee38168",
+              "name": "403 Forbidden  analyst/viewer",
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Forbidden\", \"message\": \"Access denied\", \"statusCode\": 403 }"
+            }
+          ]
+        },
+        {
+          "name": "Create user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.id) { pm.collectionVariables.set('userId', json.id); }"
+                ],
+                "type": "text/javascript",
+                "id": "1beaa196-62bb-43b1-a4e0-8d907d2936ef"
+              }
+            }
+          ],
+          "id": "a8c8ab1e-5b42-4041-bac1-8a4058c54c12",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New Analyst\",\n  \"email\": \"new.analyst@finance.local\",\n  \"password\": \"Password1!\",\n  \"role\": \"ANALYST\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "8212bd4d-1830-4afb-bcc3-b87171e9843d",
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"id\": \"...\", \"name\": \"New Analyst\", \"email\": \"new.analyst@finance.local\", \"role\": \"ANALYST\", \"status\": \"ACTIVE\", \"createdAt\": \"2026-04-05T10:00:00\" }"
+            },
+            {
+              "id": "a4e3e9df-8935-4a65-aceb-5437c1d6d116",
+              "name": "409 Email already registered",
+              "status": "Conflict",
+              "code": 409,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Conflict\", \"message\": \"Email already registered\", \"statusCode\": 409 }"
+            }
+          ]
+        },
+        {
+          "name": "Assign role (append)",
+          "id": "4b54d9ed-a325-4a2f-836e-03ffd48e1a9f",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}/roles/{{roleId}}?reason=promotion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}",
+                "roles",
+                "{{roleId}}"
+              ],
+              "query": [
+                {
+                  "key": "reason",
+                  "value": "promotion"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "79a5ceda-ae44-4bae-9733-3f950bb523c3",
+              "name": "200 OK — UserResponse (multi-role user now holds this role too)",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"id\": \"{{userId}}\", \"name\": \"...\", \"email\": \"...\", \"status\": \"ACTIVE\" }"
+            },
+            {
+              "id": "e022a4d8-e789-43ab-8a80-0972f74f55b8",
+              "name": "409 Conflict — user already has this role",
+              "status": "Conflict",
+              "code": 409,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Conflict\", \"message\": \"User already has this role\", \"statusCode\": 409 }"
+            },
+            {
+              "id": "55f4a2dc-7bf5-4208-9534-4d397ff933c5",
+              "name": "404 User or role not found",
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Not Found\", \"message\": \"User not found\", \"statusCode\": 404 }"
+            }
+          ]
+        },
+        {
+          "name": "Revoke role (guard: last role)",
+          "id": "539abd96-b5f5-4dba-9c3f-66a0b6fc1ceb",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}/roles/{{roleId}}?reason=demotion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}",
+                "roles",
+                "{{roleId}}"
+              ],
+              "query": [
+                {
+                  "key": "reason",
+                  "value": "demotion"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "dd63e07f-e555-4fe5-92d6-aea6ec6757f1",
+              "name": "200 OK — UserResponse (role removed)",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"id\": \"{{userId}}\", \"name\": \"...\", \"email\": \"...\", \"status\": \"ACTIVE\" }"
+            },
+            {
+              "id": "8f7ad79a-3fa6-45a4-ba4d-5a5dd620c9d4",
+              "name": "400 Bad Request — cannot revoke last role",
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Bad Request\", \"message\": \"Cannot revoke the last role from a user\", \"statusCode\": 400 }"
+            },
+            {
+              "id": "b557283a-3ebc-45ba-9acc-0712dbd8bd3a",
+              "name": "404 User does not hold this role",
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Not Found\", \"message\": \"User does not hold this role\", \"statusCode\": 404 }"
+            }
+          ]
+        },
+        {
+          "name": "Get user effective permissions",
+          "id": "8c9e532a-6b4d-4d59-8f08-4f006ae09e77",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}/permissions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}",
+                "permissions"
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "20154497-0fc3-45ab-b1d8-b566f38e215b",
+              "name": "200 OK — deduplicated union of all role permissions (Composite pattern)",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "[ { \"id\": \"...\", \"name\": \"records:read\" }, { \"id\": \"...\", \"name\": \"dashboard:read\" } ]"
+            },
+            {
+              "id": "67bd7c38-0695-44f0-9f4c-71d0ca6d3e3b",
+              "name": "403 Forbidden — non-ADMIN",
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Forbidden\", \"message\": \"Access Denied\", \"statusCode\": 403 }"
+            }
+          ]
+        },
+        {
+          "name": "Toggle status (suspend)",
+          "id": "0e598d7f-4774-4358-b670-6adfa6500012",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"SUSPENDED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}",
+                "status"
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "3c69f6d5-a24e-4ecd-83df-ba199a967e67",
+              "name": "200 OK  user suspended",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"id\": \"...\", \"name\": \"New Analyst\", \"email\": \"new.analyst@finance.local\", \"role\": \"ADMIN\", \"status\": \"SUSPENDED\", \"createdAt\": \"...\" }"
+            }
+          ]
+        },
+        {
+          "name": "Toggle status (reactivate)",
+          "id": "34468448-de74-410e-8356-07d769bceccf",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"ACTIVE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}",
+                "status"
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "a6c24b33-0484-4f93-ba58-ae988dee7ac7",
+              "name": "200 OK  user reactivated",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"id\": \"...\", \"name\": \"New Analyst\", \"email\": \"new.analyst@finance.local\", \"role\": \"ADMIN\", \"status\": \"ACTIVE\", \"createdAt\": \"...\" }"
+            }
+          ]
+        },
+        {
+          "name": "User role-change history",
+          "id": "f75a9fa3-ed2f-4cfa-941b-d8e64fb4c59f",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}/role-history",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}",
+                "role-history"
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "ed09e2e2-be74-4275-9396-8b867f7b4809",
+              "name": "200 OK  role changes newest-first",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "[\n  {\n    \"id\": \"a1b2c3d4-...\",\n    \"userId\": \"{{userId}}\",\n    \"userName\": \"New Analyst\",\n    \"previousRole\": \"ANALYST\",\n    \"newRole\": \"ADMIN\",\n    \"changedById\": \"admin-uuid-...\",\n    \"changedByName\": \"Admin User\",\n    \"reason\": \"Promoted after probation period\",\n    \"changedAt\": \"2026-04-05T10:40:00\"\n  },\n  {\n    \"id\": \"b2c3d4e5-...\",\n    \"userId\": \"{{userId}}\",\n    \"userName\": \"New Analyst\",\n    \"previousRole\": \"VIEWER\",\n    \"newRole\": \"ANALYST\",\n    \"changedById\": \"admin-uuid-...\",\n    \"changedByName\": \"Admin User\",\n    \"reason\": null,\n    \"changedAt\": \"2026-04-05T10:10:00\"\n  }\n]"
+            },
+            {
+              "id": "e5ab73fb-6190-486b-94a0-03b16e8a165b",
+              "name": "404 User not found",
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Not Found\", \"message\": \"User not found: <id>\", \"statusCode\": 404 }"
+            },
+            {
+              "id": "0abff3db-33e8-4e59-b502-bd5f647c6172",
+              "name": "403 Forbidden  non-ADMIN",
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Forbidden\", \"message\": \"Access denied\", \"statusCode\": 403 }"
+            }
+          ]
+        }
+      ],
+      "id": "78886c6b-4511-4379-b8c7-f6f3c3491053",
+      "description": "All endpoints require ADMIN role."
+    },
+    {
+      "name": "Permission Management",
+      "item": [
+        {
+          "name": "List all permissions",
+          "id": "a4c311fd-be9a-47ed-b6db-7596aaf9aa10",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/permissions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "permissions"
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "df0424e6-019a-4959-8029-6735e9b033b6",
+              "name": "200 OK — list of PermissionResponse",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "[ { \"id\": \"...\", \"name\": \"records:read\" }, { \"id\": \"...\", \"name\": \"records:write\" } ]"
+            },
+            {
+              "id": "757ad06b-ffda-4046-ac4b-a3289516a4bf",
+              "name": "403 Forbidden — non-ADMIN",
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Forbidden\", \"message\": \"Access Denied\", \"statusCode\": 403 }"
+            }
+          ]
+        },
+        {
+          "name": "Get permission by ID",
+          "id": "3b8799f8-1626-4007-9056-97b6d65e03d3",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/permissions/{{permissionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "permissions",
+                "{{permissionId}}"
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "4ed2a564-e4d7-4244-b681-24bcbdea3a37",
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"id\": \"{{permissionId}}\", \"name\": \"records:read\" }"
+            },
+            {
+              "id": "a27805c7-1279-4f15-b855-3380e4422d35",
+              "name": "404 Not found",
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Not Found\", \"message\": \"Permission not found\", \"statusCode\": 404 }"
+            }
+          ]
+        },
+        {
+          "name": "Create permission",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.id) { pm.collectionVariables.set('permissionId', json.id); }"
+                ],
+                "type": "text/javascript",
+                "id": "690ac7ae-d680-4ce0-8c5b-75ea672dbfb6"
+              }
+            }
+          ],
+          "id": "f72aca1b-b14c-4bc4-8ea2-1abe85e87a16",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\\n  \"name\": \"records:export\"\\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/permissions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "permissions"
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "d7684bf4-d159-48a0-9de9-5d276b0a05ac",
+              "name": "201 Created — auto-saves permissionId variable",
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"id\": \"...\", \"name\": \"records:export\" }"
+            },
+            {
+              "id": "40d08cc9-8c8d-430a-8856-5f1b27804fc0",
+              "name": "400 Invalid name format",
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Bad Request\", \"message\": \"Permission name must match format resource:action\", \"statusCode\": 400 }"
+            },
+            {
+              "id": "c3710cbd-52b0-487f-a2c5-879588c7913d",
+              "name": "409 Name already exists",
+              "status": "Conflict",
+              "code": 409,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Conflict\", \"message\": \"Permission name already exists\", \"statusCode\": 409 }"
+            }
+          ]
+        },
+        {
+          "name": "Delete permission",
+          "id": "7976cb1a-ca2b-46dd-8b1c-113cb3eac22c",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/permissions/{{permissionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "permissions",
+                "{{permissionId}}"
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "5dc15270-e639-4f50-8bfe-70306789dc81",
+              "name": "204 No Content",
+              "status": "No Content",
+              "code": 204,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": ""
+            },
+            {
+              "id": "d8c8ccad-254d-4f9a-845f-5f61cbceb7d2",
+              "name": "409 Conflict — permission assigned to a role",
+              "status": "Conflict",
+              "code": 409,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Conflict\", \"message\": \"Permission is assigned to one or more roles\", \"statusCode\": 409 }"
+            },
+            {
+              "id": "daf2eb93-e3d5-4a6a-84ee-be37a12b2c74",
+              "name": "404 Not found",
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Not Found\", \"message\": \"Permission not found\", \"statusCode\": 404 }"
+            }
+          ]
+        }
+      ],
+      "id": "05ba7616-3277-49c2-8542-2dbd4655df90",
+      "description": "CRUD for permissions (ADMIN only). Permissions follow the format resource:action (e.g. records:read)."
+    },
+    {
+      "name": "Role Management",
+      "item": [
+        {
+          "name": "List all roles",
+          "id": "5e3f181e-bc28-4251-a8de-c7b9b64f180c",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/roles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "roles"
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "ee402136-b534-4227-a970-58c4a60c9d8a",
+              "name": "200 OK — list of RoleResponse with permissions",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "[ { \"id\": \"...\", \"name\": \"ADMIN\", \"permissions\": [ { \"id\": \"...\", \"name\": \"records:write\" } ] } ]"
+            }
+          ]
+        },
+        {
+          "name": "Get role by ID",
+          "id": "f2a57cbc-36e0-4667-bf4f-290f44a6c4ec",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/roles/{{roleId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "roles",
+                "{{roleId}}"
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "85622d01-1362-480d-bdaf-7e0da3de3772",
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"id\": \"{{roleId}}\", \"name\": \"ADMIN\", \"permissions\": [] }"
+            },
+            {
+              "id": "d4416207-9a52-4332-ba47-f224a4ca3d14",
+              "name": "404 Not found",
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Not Found\", \"message\": \"Role not found\", \"statusCode\": 404 }"
+            }
+          ]
+        },
+        {
+          "name": "Create role",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.id) { pm.collectionVariables.set('roleId', json.id); }"
+                ],
+                "type": "text/javascript",
+                "id": "4743187e-e243-4de2-89f9-34cc649355db"
+              }
+            }
+          ],
+          "id": "783d5a88-33c6-4b09-a3e1-28b41f2a3c3d",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\\n  \"name\": \"AUDITOR\"\\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/roles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "roles"
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "d581c13a-8bb8-4a67-bf97-82d77c944965",
+              "name": "201 Created — auto-saves roleId variable",
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"id\": \"...\", \"name\": \"AUDITOR\", \"permissions\": [] }"
+            },
+            {
+              "id": "b87d2be0-5274-46de-9c34-3386208989df",
+              "name": "409 Name already exists",
+              "status": "Conflict",
+              "code": 409,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Conflict\", \"message\": \"Role name already exists\", \"statusCode\": 409 }"
+            }
+          ]
+        },
+        {
+          "name": "Add permission to role",
+          "id": "9db324bb-7339-4b31-a383-e1af9a5da7c5",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/roles/{{roleId}}/permissions/{{permissionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "roles",
+                "{{roleId}}",
+                "permissions",
+                "{{permissionId}}"
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "ec4a8c38-2300-4e0e-902a-7e4d6952e184",
+              "name": "200 OK — updated RoleResponse (now includes the permission)",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"id\": \"{{roleId}}\", \"name\": \"AUDITOR\", \"permissions\": [ { \"id\": \"{{permissionId}}\", \"name\": \"records:export\" } ] }"
+            },
+            {
+              "id": "3c6b36e5-3a58-435f-b338-259225d90f61",
+              "name": "404 Role or permission not found",
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Not Found\", \"message\": \"Role not found\", \"statusCode\": 404 }"
+            }
+          ]
+        },
+        {
+          "name": "Remove permission from role",
+          "id": "2a5f6cb6-0625-448a-8a39-c3e543a690fd",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/roles/{{roleId}}/permissions/{{permissionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "roles",
+                "{{roleId}}",
+                "permissions",
+                "{{permissionId}}"
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "a22b4791-4ace-41e3-8965-c558cdab5856",
+              "name": "200 OK — updated RoleResponse (permission removed)",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"id\": \"{{roleId}}\", \"name\": \"AUDITOR\", \"permissions\": [] }"
+            },
+            {
+              "id": "07012f65-35a8-429e-b975-27e20bc98183",
+              "name": "404 Not found",
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Not Found\", \"message\": \"Role not found\", \"statusCode\": 404 }"
+            }
+          ]
+        },
+        {
+          "name": "Delete role",
+          "id": "28250a28-a1b8-401f-9bb7-2603fcdc9ba0",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/roles/{{roleId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "roles",
+                "{{roleId}}"
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "127ded0b-9c39-42d6-a8cf-151326efdd73",
+              "name": "204 No Content",
+              "status": "No Content",
+              "code": 204,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": ""
+            },
+            {
+              "id": "1912fe75-0db7-477d-b119-973f66a12366",
+              "name": "409 Conflict — role assigned to users",
+              "status": "Conflict",
+              "code": 409,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Conflict\", \"message\": \"Role is assigned to one or more users\", \"statusCode\": 409 }"
+            },
+            {
+              "id": "9a76c859-bcfc-48a7-bd0e-3b831528dcc1",
+              "name": "404 Not found",
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Not Found\", \"message\": \"Role not found\", \"statusCode\": 404 }"
+            }
+          ]
+        }
+      ],
+      "id": "01575305-8cca-4753-81cc-7a76d5c5297e",
+      "description": "CRUD for roles and their permission assignments (ADMIN only)."
+    },
+    {
+      "name": "Error scenarios",
+      "item": [
+        {
+          "name": "401  No token",
+          "id": "f0112c8e-be08-4bbc-96ab-49ac2fcc3db5",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/records",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "records"
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "ead7046c-2ac9-4ac9-8dd2-f618e8108c14",
+              "name": "401 Unauthorized",
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Unauthorized\", \"message\": \"Authentication required\", \"statusCode\": 401 }"
+            }
+          ]
+        },
+        {
+          "name": "403  Analyst tries to create record",
+          "id": "048dcd11-e58b-457b-865a-22b9083553dd",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analystToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 100.00,\n  \"type\": \"EXPENSE\",\n  \"category\": \"Test\",\n  \"date\": \"2026-04-05\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/records",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "records"
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "53117828-1e90-40a6-a3ee-e5c9a3e14307",
+              "name": "403 Forbidden",
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Forbidden\", \"message\": \"Access denied\", \"statusCode\": 403 }"
+            }
+          ]
+        },
+        {
+          "name": "400  Invalid create record body",
+          "id": "69d64adf-be1a-40e4-ae7f-7f9e83e01f3c",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": -50,\n  \"category\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/records",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "records"
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "6b4bd1c8-6a24-4c02-946b-ec29ecdf52bf",
+              "name": "400 Validation failed",
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": "{ \"error\": \"Validation failed\", \"message\": \"One or more fields have invalid values\", \"statusCode\": 400, \"fields\": { \"amount\": \"Amount must be positive\", \"type\": \"Type is required\", \"category\": \"Category is required\", \"date\": \"Date is required\" } }"
+            }
+          ]
+        }
+      ],
+      "id": "99baa0e5-eecb-431a-9863-55c628041908",
+      "description": "Requests that intentionally produce 4xx responses for testing the global error handler."
+    }
+  ],
+  "variable": [
+    {
+      "id": "5a1f5cb9-5a42-4d5c-b161-6e63b84c26ce",
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "id": "6e6e04bf-3aaa-43eb-9e62-ca5ab4901d98",
+      "key": "adminToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "id": "0a7c130f-8655-445d-aa7a-1fb62a7ac151",
+      "key": "analystToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "id": "f5339d1c-505c-4ddd-9a52-00082f609e6e",
+      "key": "recordId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "id": "6397947f-073e-439f-a2cf-96381834f55a",
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "id": "e616aa16-42e2-4080-b98e-cd41735022dd",
+      "key": "permissionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "id": "772e0f81-82f6-4d62-901c-70f0b4465ae8",
+      "key": "roleId",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

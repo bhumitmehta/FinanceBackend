@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -33,6 +34,15 @@ public class GlobalExceptionHandler {
                 "One or more fields have invalid values", HttpStatus.BAD_REQUEST.value());
         body.put("fields", fieldErrors);
         return ResponseEntity.badRequest().body(body);
+    }
+
+    // ── 400 Type mismatch (e.g. non-UUID path variable) ───────────────────────
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Map<String, Object>> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
+        String msg = "Invalid value '" + e.getValue() + "' for parameter '" + e.getName() + "'"
+                + (e.getRequiredType() != null ? " — expected " + e.getRequiredType().getSimpleName() : "");
+        return ResponseEntity.badRequest()
+                .body(errorBody("Bad Request", msg, HttpStatus.BAD_REQUEST.value()));
     }
 
     // ── 401 Auth ──────────────────────────────────────────────────────────────

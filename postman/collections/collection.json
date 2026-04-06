@@ -2,7 +2,7 @@
     "info":  {
                  "_postman_id":  "fb2a1c3d-4e5f-6789-abcd-ef0123456789",
                  "name":  "Finance Backend API",
-                 "description":  "Complete collection covering Auth, Financial Records, Dashboard, and User Management.\n\n**Quick start:**\n1. Run `POST /api/auth/login` with seeded credentials.\n2. Copy the returned `token` value.\n3. In Collection â†’ Edit â†’ Variables, paste it into the `adminToken` current value.\n4. All other requests will automatically send `Authorization: Bearer \u003ctoken\u003e`.",
+                 "description":  "Complete collection covering Auth, Financial Records, Dashboard, User Management, Permission Management, and Role Management.\n\n**Quick start:**\n1. Run **Login - admin** under Authentication.\n2. All variables auto-populate: `adminToken`, `permissionId`, `roleId`, `userId`.\n3. Every other request is ready to fire - no manual copy-paste needed.",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
              },
     "variable":  [
@@ -75,7 +75,7 @@
                                                   },
                                       "response":  [
                                                        {
-                                                           "name":  "201 Created â€” returns JWT token",
+                                                           "name":  "201 Created "” returns JWT token",
                                                            "status":  "Created",
                                                            "code":  201,
                                                            "body":  "{ \"token\": \"eyJhbGciOiJIUzI1NiJ9...\" }"
@@ -95,14 +95,22 @@
                                                    ]
                                   },
                                   {
-                                      "name":  "Login â€” admin",
+                                      "name":  "Login "” admin",
                                       "event":  [
                                                     {
                                                         "listen":  "test",
                                                         "script":  {
                                                                        "exec":  [
                                                                                     "const json = pm.response.json();",
-                                                                                    "if (json.token) { pm.collectionVariables.set(\u0027adminToken\u0027, json.token); }"
+                                                                                    "if (json.token) {",
+                                                                                    "  pm.collectionVariables.set(\u0027adminToken\u0027, json.token);",
+                                                                                    "  // Auto-fetch permissionId (first permission in the system)",
+                                                                                    "  pm.sendRequest({ url: pm.collectionVariables.get(\u0027baseUrl\u0027) + \u0027/api/permissions\u0027, method: \u0027GET\u0027, header: [{ key: \u0027Authorization\u0027, value: \u0027Bearer \u0027 + json.token }] }, function(err, res) { if (!err \u0026\u0026 res.code === 200) { var p = res.json(); if (p \u0026\u0026 p.length \u003e 0) pm.collectionVariables.set(\u0027permissionId\u0027, p[0].id); } });",
+                                                                                    "  // Auto-fetch roleId (first role in the system)",
+                                                                                    "  pm.sendRequest({ url: pm.collectionVariables.get(\u0027baseUrl\u0027) + \u0027/api/roles\u0027, method: \u0027GET\u0027, header: [{ key: \u0027Authorization\u0027, value: \u0027Bearer \u0027 + json.token }] }, function(err, res) { if (!err \u0026\u0026 res.code === 200) { var r = res.json(); if (r \u0026\u0026 r.length \u003e 0) pm.collectionVariables.set(\u0027roleId\u0027, r[0].id); } });",
+                                                                                    "  // Auto-fetch userId (first user in the system)",
+                                                                                    "  pm.sendRequest({ url: pm.collectionVariables.get(\u0027baseUrl\u0027) + \u0027/api/users\u0027, method: \u0027GET\u0027, header: [{ key: \u0027Authorization\u0027, value: \u0027Bearer \u0027 + json.token }] }, function(err, res) { if (!err \u0026\u0026 res.code === 200) { var u = res.json(); if (u \u0026\u0026 u.length \u003e 0) pm.collectionVariables.set(\u0027userId\u0027, u[0].id); } });",
+                                                                                    "}"
                                                                                 ],
                                                                        "type":  "text/javascript"
                                                                    }
@@ -134,7 +142,7 @@
                                                   },
                                       "response":  [
                                                        {
-                                                           "name":  "200 OK â€” JWT token (auto-saved to adminToken variable)",
+                                                           "name":  "200 OK "” JWT token (auto-saved to adminToken variable)",
                                                            "status":  "OK",
                                                            "code":  200,
                                                            "body":  "{ \"token\": \"eyJhbGciOiJIUzI1NiJ9...\" }"
@@ -148,7 +156,7 @@
                                                    ]
                                   },
                                   {
-                                      "name":  "Login â€” analyst",
+                                      "name":  "Login "” analyst",
                                       "event":  [
                                                     {
                                                         "listen":  "test",
@@ -195,7 +203,7 @@
                                                    ]
                                   },
                                   {
-                                      "name":  "Login â€” viewer",
+                                      "name":  "Login "” viewer",
                                       "request":  {
                                                       "method":  "POST",
                                                       "header":  [
@@ -284,13 +292,13 @@
                                                            "body":  "{\n  \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"amount\": 1500.00,\n  \"type\": \"INCOME\",\n  \"category\": \"Freelance\",\n  \"date\": \"2026-04-01\",\n  \"notes\": \"API testing payment\"\n}"
                                                        },
                                                        {
-                                                           "name":  "400 Validation â€” missing required fields",
+                                                           "name":  "400 Validation "” missing required fields",
                                                            "status":  "Bad Request",
                                                            "code":  400,
                                                            "body":  "{ \"error\": \"Validation failed\", \"message\": \"One or more fields have invalid values\", \"statusCode\": 400, \"fields\": { \"amount\": \"Amount is required\" } }"
                                                        },
                                                        {
-                                                           "name":  "403 Forbidden â€” wrong role (analyst/viewer)",
+                                                           "name":  "403 Forbidden "” wrong role (analyst/viewer)",
                                                            "status":  "Forbidden",
                                                            "code":  403,
                                                            "body":  "{ \"error\": \"Forbidden\", \"message\": \"Access denied\", \"statusCode\": 403 }"
@@ -334,7 +342,7 @@
                                                   },
                                       "response":  [
                                                        {
-                                                           "name":  "200 OK â€” Page\u003cRecordResponse\u003e",
+                                                           "name":  "200 OK "” Page\u003cRecordResponse\u003e",
                                                            "status":  "OK",
                                                            "code":  200,
                                                            "body":  "{\n  \"content\": [ { \"id\": \"...\", \"amount\": 1500.00, \"type\": \"INCOME\", \"category\": \"Freelance\", \"date\": \"2026-04-01\", \"notes\": \"...\" } ],\n  \"totalElements\": 30,\n  \"totalPages\": 3,\n  \"number\": 0,\n  \"size\": 10\n}"
@@ -342,7 +350,7 @@
                                                    ]
                                   },
                                   {
-                                      "name":  "List records â€” with filters",
+                                      "name":  "List records "” with filters",
                                       "request":  {
                                                       "method":  "GET",
                                                       "header":  [
@@ -390,7 +398,7 @@
                                                   },
                                       "response":  [
                                                        {
-                                                           "name":  "200 OK â€” filtered page",
+                                                           "name":  "200 OK "” filtered page",
                                                            "status":  "OK",
                                                            "code":  200,
                                                            "body":  "{ \"content\": [...], \"totalElements\": 2, \"totalPages\": 1, \"number\": 0, \"size\": 20 }"
@@ -466,7 +474,7 @@
                                                   },
                                       "response":  [
                                                        {
-                                                           "name":  "200 OK â€” updated record",
+                                                           "name":  "200 OK "” updated record",
                                                            "status":  "OK",
                                                            "code":  200,
                                                            "body":  "{ \"id\": \"{{recordId}}\", \"amount\": 1750.00, \"type\": \"INCOME\", \"category\": \"Freelance\", \"date\": \"2026-04-02\", \"notes\": \"Updated amount after invoice correction\" }"
@@ -541,13 +549,13 @@
                                                   },
                                       "response":  [
                                                        {
-                                                           "name":  "200 OK â€” revisions newest-first (ADD â†’ MOD â†’ DEL)",
+                                                           "name":  "200 OK "” revisions newest-first (ADD â†’ MOD â†’ DEL)",
                                                            "status":  "OK",
                                                            "code":  200,
                                                            "body":  "[\n  {\n    \"revision\": 4,\n    \"timestamp\": \"2026-04-05T10:30:00\",\n    \"changeType\": \"DEL\",\n    \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"amount\": 1750.00,\n    \"type\": \"INCOME\",\n    \"category\": \"Freelance\",\n    \"date\": \"2026-04-02\",\n    \"notes\": \"Updated amount after invoice correction\",\n    \"deletedAt\": \"2026-04-05T10:30:00\"\n  },\n  {\n    \"revision\": 3,\n    \"timestamp\": \"2026-04-05T10:25:00\",\n    \"changeType\": \"MOD\",\n    \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"amount\": 1750.00,\n    \"type\": \"INCOME\",\n    \"category\": \"Freelance\",\n    \"date\": \"2026-04-02\",\n    \"notes\": \"Updated amount after invoice correction\",\n    \"deletedAt\": null\n  },\n  {\n    \"revision\": 2,\n    \"timestamp\": \"2026-04-05T10:20:00\",\n    \"changeType\": \"MOD\",\n    \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"amount\": 1600.00,\n    \"type\": \"INCOME\",\n    \"category\": \"Freelance\",\n    \"date\": \"2026-04-01\",\n    \"notes\": \"Partial update\",\n    \"deletedAt\": null\n  },\n  {\n    \"revision\": 1,\n    \"timestamp\": \"2026-04-05T10:15:00\",\n    \"changeType\": \"ADD\",\n    \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"amount\": 1500.00,\n    \"type\": \"INCOME\",\n    \"category\": \"Freelance\",\n    \"date\": \"2026-04-01\",\n    \"notes\": \"API testing payment\",\n    \"deletedAt\": null\n  }\n]"
                                                        },
                                                        {
-                                                           "name":  "403 Forbidden â€” VIEWER role",
+                                                           "name":  "403 Forbidden "” VIEWER role",
                                                            "status":  "Forbidden",
                                                            "code":  403,
                                                            "body":  "{ \"error\": \"Forbidden\", \"message\": \"Access denied\", \"statusCode\": 403 }"
@@ -631,7 +639,7 @@
                                                   },
                                       "response":  [
                                                        {
-                                                           "name":  "200 OK â€” all-time totals",
+                                                           "name":  "200 OK "” all-time totals",
                                                            "status":  "OK",
                                                            "code":  200,
                                                            "body":  "{ \"totalIncome\": ..., \"totalExpenses\": ..., \"netBalance\": ... }"
@@ -754,7 +762,7 @@
                                                   },
                                       "response":  [
                                                        {
-                                                           "name":  "200 OK â€” latest 5 records",
+                                                           "name":  "200 OK "” latest 5 records",
                                                            "status":  "OK",
                                                            "code":  200,
                                                            "body":  "[ { \"id\": \"...\", \"amount\": 5200.00, \"type\": \"INCOME\", \"category\": \"Salary\", \"date\": \"2026-04-04\", \"notes\": \"...\" } ]"
@@ -796,7 +804,7 @@
                                                            "body":  "[\n  { \"id\": \"...\", \"name\": \"Admin User\", \"email\": \"admin@finance.local\", \"role\": \"ADMIN\", \"status\": \"ACTIVE\", \"createdAt\": \"2026-04-05T00:00:00\" },\n  { \"id\": \"...\", \"name\": \"Analyst User\", \"email\": \"analyst@finance.local\", \"role\": \"ANALYST\", \"status\": \"ACTIVE\", \"createdAt\": \"2026-04-05T00:00:00\" }\n]"
                                                        },
                                                        {
-                                                           "name":  "403 Forbidden â€” analyst/viewer",
+                                                           "name":  "403 Forbidden "” analyst/viewer",
                                                            "status":  "Forbidden",
                                                            "code":  403,
                                                            "body":  "{ \"error\": \"Forbidden\", \"message\": \"Access denied\", \"statusCode\": 403 }"
@@ -891,13 +899,13 @@
                                                   },
                                       "response":  [
                                                        {
-                                                           "name":  "200 OK — UserResponse (multi-role user now holds this role too)",
+                                                           "name":  "200 OK - UserResponse (multi-role user now holds this role too)",
                                                            "status":  "OK",
                                                            "code":  200,
                                                            "body":  "{ \"id\": \"{{userId}}\", \"name\": \"...\", \"email\": \"...\", \"status\": \"ACTIVE\" }"
                                                        },
                                                        {
-                                                           "name":  "409 Conflict — user already has this role",
+                                                           "name":  "409 Conflict - user already has this role",
                                                            "status":  "Conflict",
                                                            "code":  409,
                                                            "body":  "{ \"error\": \"Conflict\", \"message\": \"User already has this role\", \"statusCode\": 409 }"
@@ -942,13 +950,13 @@
                                                   },
                                       "response":  [
                                                        {
-                                                           "name":  "200 OK — UserResponse (role removed)",
+                                                           "name":  "200 OK - UserResponse (role removed)",
                                                            "status":  "OK",
                                                            "code":  200,
                                                            "body":  "{ \"id\": \"{{userId}}\", \"name\": \"...\", \"email\": \"...\", \"status\": \"ACTIVE\" }"
                                                        },
                                                        {
-                                                           "name":  "400 Bad Request — cannot revoke last role",
+                                                           "name":  "400 Bad Request - cannot revoke last role",
                                                            "status":  "Bad Request",
                                                            "code":  400,
                                                            "body":  "{ \"error\": \"Bad Request\", \"message\": \"Cannot revoke the last role from a user\", \"statusCode\": 400 }"
@@ -986,13 +994,13 @@
                                                   },
                                       "response":  [
                                                        {
-                                                           "name":  "200 OK — deduplicated union of all role permissions (Composite pattern)",
+                                                           "name":  "200 OK - deduplicated union of all role permissions (Composite pattern)",
                                                            "status":  "OK",
                                                            "code":  200,
                                                            "body":  "[ { \"id\": \"...\", \"name\": \"records:read\" }, { \"id\": \"...\", \"name\": \"dashboard:read\" } ]"
                                                        },
                                                        {
-                                                           "name":  "403 Forbidden — non-ADMIN",
+                                                           "name":  "403 Forbidden - non-ADMIN",
                                                            "status":  "Forbidden",
                                                            "code":  403,
                                                            "body":  "{ \"error\": \"Forbidden\", \"message\": \"Access Denied\", \"statusCode\": 403 }"
@@ -1032,7 +1040,7 @@
                                                   },
                                       "response":  [
                                                        {
-                                                           "name":  "200 OK â€” user suspended",
+                                                           "name":  "200 OK "” user suspended",
                                                            "status":  "OK",
                                                            "code":  200,
                                                            "body":  "{ \"id\": \"...\", \"name\": \"New Analyst\", \"email\": \"new.analyst@finance.local\", \"role\": \"ADMIN\", \"status\": \"SUSPENDED\", \"createdAt\": \"...\" }"
@@ -1072,7 +1080,7 @@
                                                   },
                                       "response":  [
                                                        {
-                                                           "name":  "200 OK â€” user reactivated",
+                                                           "name":  "200 OK "” user reactivated",
                                                            "status":  "OK",
                                                            "code":  200,
                                                            "body":  "{ \"id\": \"...\", \"name\": \"New Analyst\", \"email\": \"new.analyst@finance.local\", \"role\": \"ADMIN\", \"status\": \"ACTIVE\", \"createdAt\": \"...\" }"
@@ -1104,7 +1112,7 @@
                                                   },
                                       "response":  [
                                                        {
-                                                           "name":  "200 OK â€” role changes newest-first",
+                                                           "name":  "200 OK "” role changes newest-first",
                                                            "status":  "OK",
                                                            "code":  200,
                                                            "body":  "[\n  {\n    \"id\": \"a1b2c3d4-...\",\n    \"userId\": \"{{userId}}\",\n    \"userName\": \"New Analyst\",\n    \"previousRole\": \"ANALYST\",\n    \"newRole\": \"ADMIN\",\n    \"changedById\": \"admin-uuid-...\",\n    \"changedByName\": \"Admin User\",\n    \"reason\": \"Promoted after probation period\",\n    \"changedAt\": \"2026-04-05T10:40:00\"\n  },\n  {\n    \"id\": \"b2c3d4e5-...\",\n    \"userId\": \"{{userId}}\",\n    \"userName\": \"New Analyst\",\n    \"previousRole\": \"VIEWER\",\n    \"newRole\": \"ANALYST\",\n    \"changedById\": \"admin-uuid-...\",\n    \"changedByName\": \"Admin User\",\n    \"reason\": null,\n    \"changedAt\": \"2026-04-05T10:10:00\"\n  }\n]"
@@ -1116,7 +1124,7 @@
                                                            "body":  "{ \"error\": \"Not Found\", \"message\": \"User not found: \u003cid\u003e\", \"statusCode\": 404 }"
                                                        },
                                                        {
-                                                           "name":  "403 Forbidden â€” non-ADMIN",
+                                                           "name":  "403 Forbidden "” non-ADMIN",
                                                            "status":  "Forbidden",
                                                            "code":  403,
                                                            "body":  "{ \"error\": \"Forbidden\", \"message\": \"Access denied\", \"statusCode\": 403 }"
@@ -1152,13 +1160,13 @@
                                                   },
                                       "response":  [
                                                        {
-                                                           "name":  "200 OK — list of PermissionResponse",
+                                                           "name":  "200 OK - list of PermissionResponse",
                                                            "status":  "OK",
                                                            "code":  200,
                                                            "body":  "[ { \"id\": \"...\", \"name\": \"records:read\" }, { \"id\": \"...\", \"name\": \"records:write\" } ]"
                                                        },
                                                        {
-                                                           "name":  "403 Forbidden — non-ADMIN",
+                                                           "name":  "403 Forbidden - non-ADMIN",
                                                            "status":  "Forbidden",
                                                            "code":  403,
                                                            "body":  "{ \"error\": \"Forbidden\", \"message\": \"Access Denied\", \"statusCode\": 403 }"
@@ -1245,7 +1253,7 @@
                                                   },
                                       "response":  [
                                                        {
-                                                           "name":  "201 Created — auto-saves permissionId variable",
+                                                           "name":  "201 Created - auto-saves permissionId variable",
                                                            "status":  "Created",
                                                            "code":  201,
                                                            "body":  "{ \"id\": \"...\", \"name\": \"records:export\" }"
@@ -1294,7 +1302,7 @@
                                                            "body":  ""
                                                        },
                                                        {
-                                                           "name":  "409 Conflict — permission assigned to a role",
+                                                           "name":  "409 Conflict - permission assigned to a role",
                                                            "status":  "Conflict",
                                                            "code":  409,
                                                            "body":  "{ \"error\": \"Conflict\", \"message\": \"Permission is assigned to one or more roles\", \"statusCode\": 409 }"
@@ -1336,7 +1344,7 @@
                                                   },
                                       "response":  [
                                                        {
-                                                           "name":  "200 OK — list of RoleResponse with permissions",
+                                                           "name":  "200 OK - list of RoleResponse with permissions",
                                                            "status":  "OK",
                                                            "code":  200,
                                                            "body":  "[ { \"id\": \"...\", \"name\": \"ADMIN\", \"permissions\": [ { \"id\": \"...\", \"name\": \"records:write\" } ] } ]"
@@ -1423,7 +1431,7 @@
                                                   },
                                       "response":  [
                                                        {
-                                                           "name":  "201 Created — auto-saves roleId variable",
+                                                           "name":  "201 Created - auto-saves roleId variable",
                                                            "status":  "Created",
                                                            "code":  201,
                                                            "body":  "{ \"id\": \"...\", \"name\": \"AUDITOR\", \"permissions\": [] }"
@@ -1462,7 +1470,7 @@
                                                   },
                                       "response":  [
                                                        {
-                                                           "name":  "200 OK — updated RoleResponse (now includes the permission)",
+                                                           "name":  "200 OK - updated RoleResponse (now includes the permission)",
                                                            "status":  "OK",
                                                            "code":  200,
                                                            "body":  "{ \"id\": \"{{roleId}}\", \"name\": \"AUDITOR\", \"permissions\": [ { \"id\": \"{{permissionId}}\", \"name\": \"records:export\" } ] }"
@@ -1501,7 +1509,7 @@
                                                   },
                                       "response":  [
                                                        {
-                                                           "name":  "200 OK — updated RoleResponse (permission removed)",
+                                                           "name":  "200 OK - updated RoleResponse (permission removed)",
                                                            "status":  "OK",
                                                            "code":  200,
                                                            "body":  "{ \"id\": \"{{roleId}}\", \"name\": \"AUDITOR\", \"permissions\": [] }"
@@ -1544,7 +1552,7 @@
                                                            "body":  ""
                                                        },
                                                        {
-                                                           "name":  "409 Conflict — role assigned to users",
+                                                           "name":  "409 Conflict - role assigned to users",
                                                            "status":  "Conflict",
                                                            "code":  409,
                                                            "body":  "{ \"error\": \"Conflict\", \"message\": \"Role is assigned to one or more users\", \"statusCode\": 409 }"
@@ -1564,7 +1572,7 @@
                      "description":  "Requests that intentionally produce 4xx responses for testing the global error handler.",
                      "item":  [
                                   {
-                                      "name":  "401 â€” No token",
+                                      "name":  "401 "” No token",
                                       "request":  {
                                                       "method":  "GET",
                                                       "header":  [
@@ -1591,7 +1599,7 @@
                                                    ]
                                   },
                                   {
-                                      "name":  "403 â€” Analyst tries to create record",
+                                      "name":  "403 "” Analyst tries to create record",
                                       "request":  {
                                                       "method":  "POST",
                                                       "header":  [
@@ -1629,7 +1637,7 @@
                                                    ]
                                   },
                                   {
-                                      "name":  "400 â€” Invalid create record body",
+                                      "name":  "400 "” Invalid create record body",
                                       "request":  {
                                                       "method":  "POST",
                                                       "header":  [
