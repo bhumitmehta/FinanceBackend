@@ -241,6 +241,8 @@ Validation errors additionally include a `fields` map:
 ---
 
 ## Architecture & Design Patterns
+### ER-Diagram 
+<img width="1852" height="660" alt="image" src="https://github.com/user-attachments/assets/82407336-d01c-4b4d-829e-5c6cf1ab03eb" />
 
 ### 1 — DB-driven RBAC (Level 2 — Runtime Permission Management)
 
